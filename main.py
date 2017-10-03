@@ -46,6 +46,7 @@ utilities = Utilities()
 
 
 while running:
+    utilities.blocky_view(player)
     utilities.end_turn([player], [enemy])
     player.choose_action()
     choice = input("Choose action: ")

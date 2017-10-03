@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import random
 from .magic import Spell
 
@@ -22,18 +25,50 @@ class Utilities:
         for p in players:
             print(indent + bcolors.BOLD + p.name + bcolors.ENDC + "\n")
             print(indent + bcolors.OKGREEN + "|_________________________|")
-            print(indent + indent + indent + indent +  str(p.get_hp()) +
-                  bcolors.ENDC)
+            print(indent + indent + indent + str(p.get_hp()) + "/"
+                  + str(p.get_max_hp()) + bcolors.ENDC)
             print(indent + bcolors.OKBLUE + "|__________|")
-            print(indent + indent + str(p.get_mp()) + bcolors.ENDC + "\n")
+            print(indent + indent + str(p.get_mp()) + "/" + str(p.get_max_mp(
+            )) + bcolors.ENDC + "\n")
 
         for e in enemies:
             print(indent + bcolors.FAIL + e.name + bcolors.ENDC + "\n")
             print(indent + bcolors.OKGREEN + "|_________________________|")
-            print(indent + indent + indent + indent +  str(e.get_hp()) +
-                  bcolors.ENDC)
+            print(indent + indent + indent + str(e.get_hp()) + "/"
+                  + str(e.get_max_hp()) + bcolors.ENDC)
             print(indent + bcolors.OKBLUE + "|__________|")
-            print(indent + indent + str(e.get_mp()) + bcolors.ENDC + "\n")
+            print(indent + indent + str(e.get_mp()) + "/" + str(e.get_max_mp(
+            )) + bcolors.ENDC + "\n")
+
+    def blocky_view(self, person):
+        """for c in range(1,int(0x10FF)):
+            print(str(c), chr(c))"""
+        block_char = chr(9960)
+        hp = person.get_hp()
+        mp = person.get_mp()
+        max_hp = person.get_max_hp()
+        max_mp = person.get_max_mp()
+        hp_size = int(max_hp / 10)
+        mp_size = int(max_mp / 10)
+        current_hp = hp_size - int(hp /10)
+        current_mp = mp_size - int(mp / 10)
+
+    #TODO: Add colors and printed ints for hp and mp, work on formatting nicely
+        if current_hp != 0:
+            underscore = "_"
+            underscore_size = hp_size - current_hp
+            underscore_size_mp = mp_size - current_mp
+            print("HP ", "|" + current_hp * block_char + underscore *
+                  underscore_size + "|")
+        else:
+            print("HP ", "|" + hp_size * block_char + "|")
+
+        if current_mp != 0:
+            print("MP ", "|" + current_mp * block_char + underscore *
+                  underscore_size_mp + "|")
+        else:
+            print("MP ", "|" + mp_size * block_char + "|")
+
 
 
 
