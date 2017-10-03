@@ -19,33 +19,34 @@ white_magick = [cure, cura]
 
 
 # Create Items
-potion = Item("Potion", "potion", "Heals 50 HP", 50)
-hi_potion = Item("Hi-Potion", "potion", "Heals 100 HP", 100)
-super_potion = Item("Super-Potion", "potion", "Heals 500 HP", 500)
+potion = Item("Potion", "potion", "Heals 50 HP", 50, 3)
+hi_potion = Item("Hi-Potion", "potion", "Heals 100 HP", 100, 1)
+super_potion = Item("Super-Potion", "potion", "Heals 500 HP", 500, 1)
 elixir = Item("Elixir", "elixir", "Replenishes the mp and hp of a party "
-                                  "member", 9999)
+                                  "member", 9999, 1)
 hi_elixir = Item("Hi-Elixer", "elixir", "Replenishes the whole party's hp and "
-                                       "mp", 9999)
-grenade = Item("Grenade", "attack", "Deals 500 damage", 500)
+                                       "mp", 9999, 1)
+grenade = Item("Grenade", "attack", "Deals 500 damage", 500, 2)
 
 # player inventory
 player_items = [potion, hi_potion, super_potion, elixir, hi_elixir, grenade]
 
 # Instantiate player and enemy
-player = Person(450, 65, 60, 34, black_magick + white_magick, player_items)
-enemy = Person(1200, 60, 45, 25, [], [])
+player = Person("Boromir", 450, 65, 60, 34, black_magick + white_magick,
+                player_items)
+enemy = Person("Nazgul", 1200, 60, 45, 25, [], [])
 
 
 # MAIN LOOP
 
 running = True
 
+print("\n", "\n")
+utilities = Utilities()
 
-print(bcolors.FAIL + bcolors.BOLD, "An enemy attacks" + bcolors.ENDC)
 
 while running:
-    print("=======================================")
-    utilities = Utilities()
+    utilities.end_turn([player], [enemy])
     player.choose_action()
     choice = input("Choose action: ")
     index = int(choice) - 1
@@ -91,6 +92,11 @@ while running:
 
         if item_choice == -1:
             continue
+        elif item.quantity == 0:
+            print(bcolors.WARNING + "You don't have any items of this type in"
+                                    "your inventory" + bcolors.ENDC)
+            continue
+
         elif item.type == 'potion':
             player.heal(item.prop)
             print(bcolors.OKGREEN + "\n" + item.name + " heals: " + str(
@@ -99,9 +105,20 @@ while running:
         elif item.type == "elixir":
             player.hp = player.maxhp
             player.mp = player.maxmp
+            item.reduce_quantity(1)
+            print(bcolors.OKGREEN + "HP and MP fully restored" + "\n" +
+                  bcolors.ENDC)
+            print(bcolors.BOLD + "You have " + str(item.quantity) + "of" +
+                  item.name + " left in your inventory" + bcolors.ENDC)
 
+        elif item.type == 'attack':
+            enemy.take_damage(item.prop)
+            item.reduce_quantity(1)
+            print(bcolors.FAIL + "The enemy was hit by your " + item.name +
+                  " for " + str(item.prop) +  "hit points" + bcolors.ENDC)
+            print(bcolors.BOLD + "You have " + str(item.quantity) + " of" +
+                  item.name + " left in your inventory." +"\n"  + bcolors.ENDC)
 
-    utilities.end_turn(player, enemy)
     enemy_choice = 1
 
     enemy_dmg = enemy.generate_damage()

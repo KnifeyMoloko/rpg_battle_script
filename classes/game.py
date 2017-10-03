@@ -17,23 +17,29 @@ class Utilities:
     def __init__(self):
         pass
 
-    def end_turn(self, player, enemy):
+    def end_turn(self, players, enemies):
         print("=======================================")
-        print("\nPlayer HP is: " + bcolors.OKGREEN + str(player.get_hp()) +
-              "\\" + str(player.get_max_hp()) + bcolors.ENDC)
+        for p in players:
+            print(indent + bcolors.BOLD + p.name + bcolors.ENDC + "\n")
+            print(indent + bcolors.OKGREEN + "|_________________________|")
+            print(indent + indent + indent + indent +  str(p.get_hp()) +
+                  bcolors.ENDC)
+            print(indent + bcolors.OKBLUE + "|__________|")
+            print(indent + indent + str(p.get_mp()) + bcolors.ENDC + "\n")
 
-        print("\nPlayer MP is: " + bcolors.OKBLUE + str(player.get_mp()) +
-              "\\" + str(player.get_max_mp()) + bcolors.ENDC)
+        for e in enemies:
+            print(indent + bcolors.FAIL + e.name + bcolors.ENDC + "\n")
+            print(indent + bcolors.OKGREEN + "|_________________________|")
+            print(indent + indent + indent + indent +  str(e.get_hp()) +
+                  bcolors.ENDC)
+            print(indent + bcolors.OKBLUE + "|__________|")
+            print(indent + indent + str(e.get_mp()) + bcolors.ENDC + "\n")
 
-        print("\nEnemy HP is: " + bcolors.FAIL + str(enemy.get_hp()) +
-              "\\" + str(enemy.get_max_hp()) + bcolors.ENDC)
-
-        print("\nEnemy MP is: " + bcolors.OKBLUE + str(enemy.get_mp()) +
-              "\\" + str(enemy.get_max_mp()) + bcolors.ENDC + "\n")
 
 
 class Person:
-    def __init__(self, hp, mp, atk, df, magic, items):
+    def __init__(self, name, hp, mp, atk, df, magic, items):
+        self.name = name
         self.maxhp = hp
         self.hp = hp
         self.maxmp = mp
@@ -101,6 +107,7 @@ class Person:
         print("\n" + bcolors.OKGREEN + "ITEMS:" + "\n" + bcolors.ENDC)
 
         for i in self.items:
-            print(indent, str(num),  i.name, ": " + i.description)
+            print(indent, str(num),  i.name, ": " + i.description + " (" +
+                  str(i.quantity) + ")")
             num = num + 1
 
