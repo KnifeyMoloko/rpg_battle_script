@@ -2,6 +2,6 @@
 *.pydevproject
 *.pyc
 *.vscode
-*.idea
+.idea
 *.settings
 classes/__pycache__/

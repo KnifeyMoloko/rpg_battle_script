@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+
 
 import random
 from .magic import Spell
@@ -72,6 +71,16 @@ class Utilities:
         print(indent, bcolors.OKBLUE + bcolors.BOLD + "MP: " + str(mp) +
               "/" + str(max_mp) + bcolors.ENDC + "\n")
 
+    def team_status(self, lst):
+        if len(lst) != 0:
+            for element in lst:
+                element.is_dead(lst)
+                if len(lst) == 0:
+                    return False
+                else:
+                    return True
+        else:
+            return False
 
 
 
@@ -101,7 +110,6 @@ class Person:
 
     def heal(self, dmg):
         self.hp += dmg
-
         if self.hp > self.maxhp:
             self.hp = self.maxhp
 
@@ -148,4 +156,24 @@ class Person:
             print(indent, str(num),  i.name, ": " + i.description + " (" +
                   str(i.quantity) + ")")
             num = num + 1
+
+    def choose_target(self, arr):
+        print(self.name, " choose your target: \n")
+        i = 1
+
+        for element in arr:
+            print(indent, str(i), element.name)
+            i += 1
+
+        target_index = int(input("Your choice is: ")) - 1
+        return target_index
+
+    def is_dead(self, lst):
+        if self.hp <= 0:
+            print(indent, bcolors.BOLD + bcolors.FAIL + self.name +
+                  " has died in battle!" + "\n" + bcolors.ENDC)
+            lst.remove(self)
+            return True
+        else:
+            return False
 
