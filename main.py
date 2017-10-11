@@ -1,7 +1,6 @@
-from classes.game import Person, bcolors, Utilities
+from classes.game import Person, Utilities
 from classes.magic import Spell
 from classes.inventory import Item
-import random
 
 # Create Black Magic
 

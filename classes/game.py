@@ -105,9 +105,8 @@ class Utilities:
                 who_to_attack = random.choice(players)
                 who_to_attack.take_damage(enemy_dmg)
                 print("The enemy attacks!" + "\n" + "You were hit for: " +
-                      bcolors.FAIL + str(enemy_dmg) + bcolors.ENDC + " points of "
-                                                                     "damage" +
-                      "\n")
+                      bcolors.FAIL + str(enemy_dmg) + bcolors.ENDC +
+                      " points of damage" + "\n")
                 self.win_or_loose(players, enemies)
 
     def win_or_loose(self, players, enemies):
@@ -119,12 +118,10 @@ class Utilities:
                                                 "dead! You have lost to "
                                                 "your enemies" +
                   bcolors.ENDC)
-            self.running = False
 
         if not self.team_status(enemies):
             print("\n" + bcolors.BOLD + bcolors.HEADER + "You're "
             "foes lie slain before you! You are victorious!" + bcolors.ENDC)
-            self.running = False
 
 
 class Person:
@@ -304,3 +301,7 @@ class Person:
             return True
         else:
             return False
+
+class Enemy(Person):
+    def __init__(self):
+        super(Person, self).__init__()
