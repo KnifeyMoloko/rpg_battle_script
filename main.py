@@ -50,22 +50,15 @@ enemies = [enemy_Nazgul,enemy_Klex]
 
 # MAIN LOOP
 
-running = True
-
 print("\n", "\n")
 utilities = Utilities()
 
 
-while running:
-    if utilities.team_status(players):
-        utilities.end_turn(players, enemies)
-        utilities.player_turn(players, enemies, running)
-        if utilities.team_status(enemies) == False:
-            running = False
-        utilities.enemy_turn(players, enemies, running)
-        if utilities.team_status(players) == False:
-            running = False
+while utilities.running:
+    utilities.end_turn(players, enemies)
+    utilities.player_turn(players, enemies)
+    utilities.enemy_turn(players, enemies)
 
 
 #TODO make choose target error proof
-#TODO: smooth out the win and loose printouts, avoid duplicating
+#TODO resolve the item sharing issue
