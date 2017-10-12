@@ -58,6 +58,5 @@ while utilities.running:
     utilities.player_turn(players, enemies)
     utilities.enemy_turn(players, enemies)
 
-
-#TODO make choose target error proof
+#TODO implement the Enemy class for enemies, overwrite relevant methods for AI
 #TODO resolve the item sharing issue

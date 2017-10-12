@@ -123,6 +123,18 @@ class Utilities:
             print("\n" + bcolors.BOLD + bcolors.HEADER + "You're "
             "foes lie slain before you! You are victorious!" + bcolors.ENDC)
 
+    def input_check(self, input_value, value_range, callback, *args):
+        """generic checker function that checks if input is numeric and is in a
+        given range, otherwise throws an error prompt and executes a callback
+        (usually the same function) over with an arbitrary arg list"""
+        while input_value.isnumeric() is False or int(input_value) - 1 not in \
+                value_range:
+            print("Your input is incorrect. You should be ashamed. Try "
+                  "again." + "\n")
+            return callback(*args)
+        else:
+            return True
+
 
 class Person:
     def __init__(self, name, hp, mp, atk, df, magic, items):
@@ -178,22 +190,28 @@ class Person:
             i += 1
 
         choice = input("Choose action: ")
-        index = int(choice) - 1
-        print("You chose: ", choice)
 
-        if index == 0:
-            dmg = self.generate_damage()
-            target = self.choose_target(enemies)
-            enemies[target].take_damage(dmg)
-            print("You attacked for:", bcolors.FAIL + str(dmg) + bcolors.ENDC
-                  + " points of damage" + "\n")
-            enemies[target].is_dead(enemies)
+        if utility.input_check(choice, range(0, len(self.actions)),
+                               self.choose_action, players, enemies, utility):
+            choice_index = int(choice) - 1
+            print("You chose: ", choice)
 
-        elif index == 1:
-            self.choose_magic(players, enemies, utility)
+            if choice_index == 0:
+                dmg = self.generate_damage()
+                target = self.choose_target(enemies, utility)
+                print(type(target))
+                print(target)
+                enemies[target].take_damage(dmg)
+                print("You attacked for:",
+                      bcolors.FAIL + str(dmg) + bcolors.ENDC
+                      + " points of damage" + "\n")
+                enemies[target].is_dead(enemies)
 
-        elif index == 2:
-            self.choose_item(players, enemies, utility)
+            elif choice_index == 1:
+                self.choose_magic(players, enemies, utility)
+
+            elif choice_index == 2:
+                self.choose_item(players, enemies, utility)
 
     def choose_magic(self, players, enemies, utility):
         print("\n" + bcolors.OKBLUE + bcolors.BOLD + "Magic : " + bcolors.ENDC)
@@ -205,35 +223,39 @@ class Person:
                 i.cost) + ")")
             num = num + 1
 
-        magic_choice = int(input("Choose magic: ")) - 1
-        spell = self.magic[magic_choice]
-        magic_dmg = spell.generate_damage()
-        current_mp = self.get_mp()
+        magic_choice = input("Choose magic: ")
 
-        if magic_choice == -1:
-            self.choose_magic(players, enemies, utility)
+        if utility.input_check(magic_choice, range(0, len(self.magic)),
+                               self.choose_magic, players, enemies, utility):
 
-        if spell.cost > current_mp:
-            print(bcolors.FAIL + "\nNot enough mana\n" +
-                  bcolors.ENDC)
-            self.choose_magic(players, enemies, utility)
+            magic_choice = int(magic_choice) - 1
+            spell = self.magic[magic_choice]
+            magic_dmg = spell.generate_damage()
+            current_mp = self.get_mp()
 
-        if spell.type == "white":
-            target = self.choose_target(players)
-            players[target].heal(magic_dmg)
-            print(bcolors.OKBLUE + "\nYour spell ", spell.name,
-                  " heals ", players[target].name, "for ", str(magic_dmg),
-                  " amount of hit points" + bcolors.ENDC)
-            self.reduce_mp(spell.cost)
+            if magic_choice == -1:
+                self.choose_magic(players, enemies, utility)
 
-        elif spell.type == 'black':
-            target = self.choose_target(enemies)
-            enemies[target].take_damage(magic_dmg)
-            print(bcolors.OKBLUE + "\nYour spell ", spell.name,
-                  " deals ", str(magic_dmg), " damage to " +
-                  enemies[target].name + "\n" + bcolors.ENDC)
-            self.reduce_mp(spell.cost)
-            enemies[target].is_dead(enemies)
+            if spell.cost > current_mp:
+                print(bcolors.FAIL + "\nNot enough mana\n" + bcolors.ENDC)
+                self.choose_magic(players, enemies, utility)
+
+            if spell.type == "white":
+                target = self.choose_target(players, utility)
+                players[target].heal(magic_dmg)
+                print(bcolors.OKBLUE + "\nYour spell ", spell.name,
+                      " heals ", players[target].name, "for ", str(magic_dmg),
+                      " amount of hit points" + bcolors.ENDC)
+                self.reduce_mp(spell.cost)
+
+            elif spell.type == 'black':
+                target = self.choose_target(enemies, utility)
+                enemies[target].take_damage(magic_dmg)
+                print(bcolors.OKBLUE + "\nYour spell ", spell.name,
+                      " deals ", str(magic_dmg), " damage to " +
+                      enemies[target].name + "\n" + bcolors.ENDC)
+                self.reduce_mp(spell.cost)
+                enemies[target].is_dead(enemies)
 
     def choose_item(self, players, enemies, utility):
         num = 1
@@ -245,42 +267,47 @@ class Person:
                   str(i.quantity) + ")")
             num = num + 1
 
-        item_choice = int(input("Choose item: ")) - 1
-        item = self.items[item_choice]
+        item_choice = input("Choose item: ")
 
-        if item_choice == -1:
-            self.choose_item(players, enemies, utility)
-        elif item.quantity == 0:
-            print(
-                bcolors.WARNING + "You don't have any items of this type in"
-                                  "your inventory" + bcolors.ENDC)
-            self.choose_item(players, enemies, utility)
+        if utility.input_check(item_choice, range(0, len(self.items)),
+                            self.choose_item, players, enemies, utility):
+            item_choice = int(item_choice) - 1
+            item = self.items[item_choice]
 
-        elif item.type == 'potion':
-            self.heal(item.prop)
-            print(bcolors.OKGREEN + "\n" + item.name + " heals: " + str(
-                item.prop) + " hit points" + bcolors.ENDC)
+            if item_choice == -1:
+                self.choose_item(players, enemies, utility)
+            elif item.quantity == 0:
+                print(
+                    bcolors.WARNING + "You don't have any items of this type in"
+                                      "your inventory" + bcolors.ENDC)
+                self.choose_item(players, enemies, utility)
 
-        elif item.type == "elixir":
-            self.hp = self.maxhp
-            self.mp = self.maxmp
-            item.reduce_quantity(1)
-            print(bcolors.OKGREEN + "HP and MP fully restored" + "\n" +
-                  bcolors.ENDC)
-            print(bcolors.BOLD + "You have " + str(item.quantity) + "of" +
-                  item.name + " left in your inventory" + bcolors.ENDC)
+            elif item.type == 'potion':
+                self.heal(item.prop)
+                print(bcolors.OKGREEN + "\n" + item.name + " heals: " + str(
+                    item.prop) + " hit points" + bcolors.ENDC)
 
-        elif item.type == 'attack':
-            target = self.choose_target(enemies)
-            enemies[target].take_damage(item.prop)
-            item.reduce_quantity(1)
-            print(bcolors.FAIL + "The enemy was hit by your " + item.name +
-                  " for " + str(item.prop) + " hit points" + bcolors.ENDC)
-            print(bcolors.BOLD + "You have " + str(item.quantity) + " of " +
-                  item.name + " left in your inventory." + "\n" + bcolors.ENDC)
-            enemies[target].is_dead(enemies)
+            elif item.type == "elixir":
+                self.hp = self.maxhp
+                self.mp = self.maxmp
+                item.reduce_quantity(1)
+                print(bcolors.OKGREEN + "HP and MP fully restored" + "\n" +
+                      bcolors.ENDC)
+                print(bcolors.BOLD + "You have " + str(item.quantity) + "of" +
+                      item.name + " left in your inventory" + bcolors.ENDC)
 
-    def choose_target(self, arr):
+            elif item.type == 'attack':
+                target = self.choose_target(enemies, utility)
+                enemies[target].take_damage(item.prop)
+                item.reduce_quantity(1)
+                print(bcolors.FAIL + "The enemy was hit by your " + item.name +
+                      " for " + str(item.prop) + " hit points" + bcolors.ENDC)
+                print(bcolors.BOLD + "You have " + str(item.quantity) + " of " +
+                      item.name + " left in your inventory." + "\n" +
+                      bcolors.ENDC)
+                enemies[target].is_dead(enemies)
+
+    def choose_target(self, arr, utility):
         print(self.name, " choose your target: \n")
         i = 1
 
@@ -288,10 +315,14 @@ class Person:
             print(indent, str(i), element.name)
             i += 1
 
-        target_index = int(input("Your choice is: ")) - 1
-        if target_index < 0:
-            self.choose_target(arr)
-        return target_index
+        target_index = input("Your choice is: ")
+
+        if utility.input_check(target_index, range(0, len(arr)),
+                               self.choose_target, arr, utility):
+            target_index = int(target_index) - 1
+            return target_index
+        else:
+            return LookupError
 
     def is_dead(self, lst):
         if self.hp <= 0:
@@ -301,6 +332,7 @@ class Person:
             return True
         else:
             return False
+
 
 class Enemy(Person):
     def __init__(self):
