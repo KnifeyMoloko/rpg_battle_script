@@ -107,6 +107,7 @@ class Utilities:
                 print("The enemy attacks!" + "\n" + "You were hit for: " +
                       bcolors.FAIL + str(enemy_dmg) + bcolors.ENDC +
                       " points of damage" + "\n")
+                enemy.choose_action(players, enemies, self)
                 self.win_or_loose(players, enemies)
 
     def win_or_loose(self, players, enemies):
@@ -335,5 +336,70 @@ class Person:
 
 
 class Enemy(Person):
-    def __init__(self):
-        super(Person, self).__init__()
+    def __init__(self, name, hp, mp, atk, df, magic, items):
+        self.name = name
+        self.maxhp = hp
+        self.hp = hp
+        self.maxmp = mp
+        self.mp = mp
+        self.atkl = atk - 10
+        self.atkh = atk + 10
+        self.df = df
+        self.magic = magic
+        self.items = items
+        self.actions = ("Attack", "Magic", "Items")
+
+
+    def choose_action(self, players, enemies, utility):
+        # collect data for the decision
+
+        own_health = (self.hp / self.maxhp) * 100
+
+        print(own_health)
+
+        # plug data into algorithm
+
+        if own_health < 35:
+            # if health is low and enemy has access to healing magic, heal himself
+            pass
+            #print("Low health alert:", self.name)
+
+        else:
+            # call the method for the chosen action
+            target = self.choose_target(players)
+
+
+    def choose_target(self, arr):
+        heroes = []
+        heroes_max_hp_sum = 0
+        heroes_current_hp_sum = 0
+        heroes_atkh_sum = 0
+
+        for hero in arr:
+            #heroes.append((hero.name, hero.get_max_hp(), hero.get_hp(), hero.atkh - random.randrange(0, 15)))
+            heroes_max_hp_sum += hero.get_max_hp()
+            heroes_current_hp_sum += hero.get_hp()
+            heroes_atkh_sum += hero.atkh
+
+        for hero in arr:
+            hero_atkh_to_team_atkh = (hero.atkh - random.randrange(0, 15)) / heroes_atkh_sum * 100
+            hero_hp_to_team_hp = hero.get_hp() / heroes_current_hp_sum * 100
+            hero_hp_level = hero.get_hp() / hero.get_max_hp() * 100
+            hero_hurt = False
+            hero_hurt = True if hero_hp_level < 100 else False
+            heroes.append((hero.name, hero_hp_to_team_hp, hero_atkh_to_team_atkh, hero_hurt))
+
+        print(heroes)
+
+        # find weakest target
+        # check if target is hurt
+        # find most dangerous target
+        # check if target is hurt
+        # find random target
+
+        # pick target
+
+        # pick attack or magic, if enemy has black magic
+
+        # if magic, pick attack spell
+

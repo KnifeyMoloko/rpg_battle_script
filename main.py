@@ -1,4 +1,4 @@
-from classes.game import Person, Utilities
+from classes.game import Person, Utilities, Enemy
 from classes.magic import Spell
 from classes.inventory import Item
 
@@ -41,8 +41,8 @@ player_Bob = Person("Bob", 150, 150, 300, 34, black_magick + white_magick,
 
 players = [player_Boromir, player_Rohomir, player_Bob]
 
-enemy_Nazgul = Person("Nazgul", 1200, 60, 45, 25, [], [])
-enemy_Klex = Person("Klex", 1200, 60, 45, 25, [], [])
+enemy_Nazgul = Enemy("Nazgul", 1200, 60, 45, 25, black_magick + white_magick, [])
+enemy_Klex = Enemy("Klex", 1200, 60, 45, 25, white_magick, [])
 
 enemies = [enemy_Nazgul,enemy_Klex]
 
