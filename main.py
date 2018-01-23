@@ -41,8 +41,8 @@ player_Bob = Person("Bob", 150, 150, 300, 34, black_magick + white_magick,
 
 players = [player_Boromir, player_Rohomir, player_Bob]
 
-enemy_Nazgul = Enemy("Nazgul", 1200, 60, 45, 25, black_magick + white_magick, [])
-enemy_Klex = Enemy("Klex", 1200, 60, 45, 25, white_magick, [])
+enemy_Nazgul = Enemy("Nazgul", 1200, 60, 45, 25, black_magick + white_magick, [], "cowardly")
+enemy_Klex = Enemy("Klex", 1200, 60, 45, 25, white_magick, [], "cowardly")
 
 enemies = [enemy_Nazgul,enemy_Klex]
 

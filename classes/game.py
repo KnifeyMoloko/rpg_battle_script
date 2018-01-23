@@ -2,6 +2,7 @@
 
 import random
 from .magic import Spell
+from collections import OrderedDict
 
 indent = "    "
 
@@ -336,7 +337,7 @@ class Person:
 
 
 class Enemy(Person):
-    def __init__(self, name, hp, mp, atk, df, magic, items):
+    def __init__(self, name, hp, mp, atk, df, magic, items, behavioral_model):
         self.name = name
         self.maxhp = hp
         self.hp = hp
@@ -348,6 +349,7 @@ class Enemy(Person):
         self.magic = magic
         self.items = items
         self.actions = ("Attack", "Magic", "Items")
+        self.behavior = behavioral_model
 
 
     def choose_action(self, players, enemies, utility):
@@ -385,17 +387,63 @@ class Enemy(Person):
             hero_atkh_to_team_atkh = (hero.atkh - random.randrange(0, 15)) / heroes_atkh_sum * 100
             hero_hp_to_team_hp = hero.get_hp() / heroes_current_hp_sum * 100
             hero_hp_level = hero.get_hp() / hero.get_max_hp() * 100
-            hero_hurt = False
             hero_hurt = True if hero_hp_level < 100 else False
-            heroes.append((hero.name, hero_hp_to_team_hp, hero_atkh_to_team_atkh, hero_hurt))
+            hero_range_ceiling = 100 / len(arr)
 
-        print(heroes)
+            #heroes.append((hero.name, hero_hp_to_team_hp, hero_atkh_to_team_atkh, hero_hp_level, hero_hurt))
 
-        # find weakest target
-        # check if target is hurt
-        # find most dangerous target
-        # check if target is hurt
-        # find random target
+            heroes.append({"name": hero.name,
+                           "hp_to_team_hp": hero_hp_to_team_hp,
+                           "atkh_to_team_atkh": hero_atkh_to_team_atkh,
+                           "hp_level": hero_hp_level,
+                           "hurt": hero_hurt,
+                           "range_ceiling": hero_range_ceiling
+                           })
+
+        # sorted target lists
+
+        # lowest hp to team hp ratio first
+        weakest_target = sorted(heroes, key=lambda k: k["hp_to_team_hp"], reverse=False)
+
+        # lowest hp to own max hp first
+        most_damaged_target = sorted(heroes, key=lambda l: l["hp_level"], reverse=False)
+
+        # highest atkh to team atkh
+        most_dangerous_target = sorted(heroes, key=lambda x: x["atkh_to_team_atkh"], reverse=True)
+
+        # debug prints
+        #print("Weakest target is:", weakest_target, "\n")
+        #print("Most damaged target is:", most_damaged_target, "\n")
+        #print("Most dangerous target is:", most_dangerous_target, "\n")
+
+
+        for hero in heroes:
+            """ behavioral variables sets - these multipliers modify the weight of different factors depending on the 
+            Enemies behavioral characteristics
+            The multipliers are in sequence: weakest_target var, most_damaged_target var, most_dangerous_target var
+            """
+            coward = [2, 2, 1]
+
+
+            hrc = hero["range_ceiling"]
+            #TODO: Break up this calculation into chunks and deduct the divided number of the result from other's ceilings
+            hrc = hrc \
+                  + hrc / (weakest_target.index(hero) + 1) / 1/ coward[0] \
+                  + hrc / (most_damaged_target.index(hero) + 1) / 1/ coward[1] \
+                  + hrc / (most_dangerous_target.index(hero) + 1) / 1 / coward[2]
+            print(hero["name"], "hrc value is:", hrc)
+            # use the index value in weakest_target and hardest_hitter to calculate the range for randrange
+            #range_weak = 100 - (100 / (weakest_target.index(hero) + 1))
+            #range_hit = 100 - (100 / (hardest_hitter.index(hero) + 1))
+
+            #whatever we add to the output for a given hero should be divided by the number of the compliment and
+            #subtrackted from the complimentary team members
+
+        #print(weakest_target, "\n", hardest_hitter)
+
+        #TODO:find random target
+        #TODO:Challenge: make the variables in the target calculation codependent and limited to the 0-100 range
+        #TODO:Challenge: make the algo work with a team of whatever size
 
         # pick target
 
