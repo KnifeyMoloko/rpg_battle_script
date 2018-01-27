@@ -409,7 +409,8 @@ class Enemy(Person):
                            "hurt": hero_hurt,
                            "initial_range_ceiling": hero_range_ceiling,
                            # everybody starts off with the same initial hit chance
-                           "calculated_range_ceiling": hero_range_ceiling
+                           "calculated_range_ceiling": hero_range_ceiling,
+                           "output_range": 0
                            })
 
 
@@ -431,11 +432,31 @@ class Enemy(Person):
 
         for h in heroes:
             # calculate the incremental change to hit chance vs. initial hit chance value
-            increment = h["initial_range_ceiling"] / (weakest_target.index(h) + 1)
-            print(h["name"], "Increment", increment)
+
+            # behavioral variables
+
+            behavior_modes = {"cowardly": [3, 3, 1, 15],
+                               "aggressive": [1, 2, 3, 10],
+                              "proud": [1, 1, 4, -5],
+                               "balanced": [2, 1, 2, 0]}
+
+            # check which behavioral mode is the enemy instance set to
+            behavior = self.behavior
+            print(self.name, "behavior is", behavior)
+
+            # calculate increment
+            increment = h["initial_range_ceiling"] / 10 / ((weakest_target.index(h) + 1) / behavior_modes[behavior][0]
+                         + most_damaged_target.index(h) / behavior_modes[behavior][1]
+                         + most_dangerous_target.index(h) / behavior_modes[behavior][2])
+
+            # add hurt variable to the end result
+            if h["hurt"] is True:
+                increment += behavior_modes[behavior][3]
+
+            #print(h["name"], "Increment", increment)
 
             h["calculated_range_ceiling"] += increment # add increment to initial value
-            print(h["name"], "calc range ceiling", h["calculated_range_ceiling"])
+            #print(h["name"], "calc range ceiling", h["calculated_range_ceiling"])
 
             # calculate the divided compliment for the rest of the team, to keep the total balanced ad 100
             divided_compliment = increment / (len(heroes) - 1)
@@ -444,21 +465,34 @@ class Enemy(Person):
                 # loop over rest of the team and subtract the divided compliment for balance
                 if i["name"] is not h["name"]:
                     i["calculated_range_ceiling"] -= divided_compliment
-
         # debug print
-        for element in heroes:
-            print("Current range ceiling after calc is", int(element["calculated_range_ceiling"]))
+        #for element in heroes:
+         #   print("Current range ceiling after calc is", int(element["calculated_range_ceiling"]))
 
-        # debug print
-        total_ceiling = 0
-        for i in heroes:
-            total_ceiling += i["calculated_range_ceiling"]
-        print(total_ceiling)
+        for j in heroes:
+            if heroes.index(j) == 0:
+                lower_boundary = 1
+                upper_boundary = j["calculated_range_ceiling"]
+                j["output_range"] = range(lower_boundary, int(upper_boundary))
 
-        #TODO:find random target
-        #TODO: stack the calculated range ceilings for final range output
-        #TODO: roll the dice on the stacked range and pick target
-        #TODO:Challenge: make the algo work with a team of whatever size
+                #debug print
+                print(j["name"], "output range is", j["output_range"])
+            else:
+                lower_boundary = heroes[heroes.index(j)-1]["calculated_range_ceiling"]
+                upper_boundary = lower_boundary + j["calculated_range_ceiling"]
+                j["output_range"] = range(int(lower_boundary), int(upper_boundary))
+                j["calculated_range_ceiling"] = upper_boundary
+
+                # debug print
+                print(j["name"], "output range is", j["output_range"])
+
+        roll_dice = random.randrange(1,100)
+
+        for t in heroes:
+            if roll_dice in t["output_range"]:
+                # debug print
+                print("The target is", t["name"])
+                return t
 
         # pick target
 
