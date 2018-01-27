@@ -372,35 +372,48 @@ class Enemy(Person):
 
 
     def choose_target(self, arr):
+        """This function collects the data about targets in the player's team and chooses the most apropriate target
+        to attack based on the data. This function should have the following properties:
+        1. Account for behavioral factors, i.e. the enemy unit being cowardly, aggressive etc.
+        2. Leave a deal of randomness to the output, i.e. the enemy might read the situation wrong, have incomplete
+        information, make bad decisions with good information.
+        3. Be balanced internally, i.e. any transformations on the individual hit chance should leave the total sum
+        of individual hit chances in the 1-100 or 0-99 range"""
+
+        # function base variables
         heroes = []
         heroes_max_hp_sum = 0
         heroes_current_hp_sum = 0
         heroes_atkh_sum = 0
 
         for hero in arr:
-            #heroes.append((hero.name, hero.get_max_hp(), hero.get_hp(), hero.atkh - random.randrange(0, 15)))
+            # get totals for the team for ratio calculations down the line
             heroes_max_hp_sum += hero.get_max_hp()
             heroes_current_hp_sum += hero.get_hp()
             heroes_atkh_sum += hero.atkh
 
         for hero in arr:
+            # create a dict with each heroes variables for calculations
+
             hero_atkh_to_team_atkh = (hero.atkh - random.randrange(0, 15)) / heroes_atkh_sum * 100
             hero_hp_to_team_hp = hero.get_hp() / heroes_current_hp_sum * 100
             hero_hp_level = hero.get_hp() / hero.get_max_hp() * 100
             hero_hurt = True if hero_hp_level < 100 else False
-            hero_range_ceiling = 100 / len(arr)
+            hero_range_ceiling = 100 / len(arr) # base hit chance as a simple division between team members
 
-            #heroes.append((hero.name, hero_hp_to_team_hp, hero_atkh_to_team_atkh, hero_hp_level, hero_hurt))
-
+            # wrap in a dict
             heroes.append({"name": hero.name,
                            "hp_to_team_hp": hero_hp_to_team_hp,
                            "atkh_to_team_atkh": hero_atkh_to_team_atkh,
                            "hp_level": hero_hp_level,
                            "hurt": hero_hurt,
-                           "range_ceiling": hero_range_ceiling
+                           "initial_range_ceiling": hero_range_ceiling,
+                           # everybody starts off with the same initial hit chance
+                           "calculated_range_ceiling": hero_range_ceiling
                            })
 
-        # sorted target lists
+
+        # sorted target lists - order the player's team by the relevant metrics
 
         # lowest hp to team hp ratio first
         weakest_target = sorted(heroes, key=lambda k: k["hp_to_team_hp"], reverse=False)
@@ -416,33 +429,35 @@ class Enemy(Person):
         #print("Most damaged target is:", most_damaged_target, "\n")
         #print("Most dangerous target is:", most_dangerous_target, "\n")
 
+        for h in heroes:
+            # calculate the incremental change to hit chance vs. initial hit chance value
+            increment = h["initial_range_ceiling"] / (weakest_target.index(h) + 1)
+            print(h["name"], "Increment", increment)
 
-        for hero in heroes:
-            """ behavioral variables sets - these multipliers modify the weight of different factors depending on the 
-            Enemies behavioral characteristics
-            The multipliers are in sequence: weakest_target var, most_damaged_target var, most_dangerous_target var
-            """
-            coward = [2, 2, 1]
+            h["calculated_range_ceiling"] += increment # add increment to initial value
+            print(h["name"], "calc range ceiling", h["calculated_range_ceiling"])
 
+            # calculate the divided compliment for the rest of the team, to keep the total balanced ad 100
+            divided_compliment = increment / (len(heroes) - 1)
 
-            hrc = hero["range_ceiling"]
-            #TODO: Break up this calculation into chunks and deduct the divided number of the result from other's ceilings
-            hrc = hrc \
-                  + hrc / (weakest_target.index(hero) + 1) / 1/ coward[0] \
-                  + hrc / (most_damaged_target.index(hero) + 1) / 1/ coward[1] \
-                  + hrc / (most_dangerous_target.index(hero) + 1) / 1 / coward[2]
-            print(hero["name"], "hrc value is:", hrc)
-            # use the index value in weakest_target and hardest_hitter to calculate the range for randrange
-            #range_weak = 100 - (100 / (weakest_target.index(hero) + 1))
-            #range_hit = 100 - (100 / (hardest_hitter.index(hero) + 1))
+            for i in heroes:
+                # loop over rest of the team and subtract the divided compliment for balance
+                if i["name"] is not h["name"]:
+                    i["calculated_range_ceiling"] -= divided_compliment
 
-            #whatever we add to the output for a given hero should be divided by the number of the compliment and
-            #subtrackted from the complimentary team members
+        # debug print
+        for element in heroes:
+            print("Current range ceiling after calc is", int(element["calculated_range_ceiling"]))
 
-        #print(weakest_target, "\n", hardest_hitter)
+        # debug print
+        total_ceiling = 0
+        for i in heroes:
+            total_ceiling += i["calculated_range_ceiling"]
+        print(total_ceiling)
 
         #TODO:find random target
-        #TODO:Challenge: make the variables in the target calculation codependent and limited to the 0-100 range
+        #TODO: stack the calculated range ceilings for final range output
+        #TODO: roll the dice on the stacked range and pick target
         #TODO:Challenge: make the algo work with a team of whatever size
 
         # pick target
